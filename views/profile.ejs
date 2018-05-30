@@ -28,7 +28,11 @@
        
          and rendering them in this EJS -->
          <h6><%= rows[i].dataValues.title%></h6>
-         <h6><%= rows[i].dataValues.comment%></h6>
+		 <h6><%= rows[i].dataValues.comment%></h6>
+		 
+		 <!-- DELETE Button -->
+		 <form method="POST" action= "/delete/<%=rows[i].dataValues.id %>">
+			<button>Delete</button>
 
         </div>
 </div>

@@ -124,7 +124,7 @@ function processSignupCallback(req, username, password, done) {
 
 
 
-//==============Start of Passport Logi==========
+//==============Start of Passport Login==========
 passport.use('local-login', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
@@ -264,9 +264,18 @@ app.post('/upload', (req,res)=>{
     })    
 })
 
-// ====to 'delete' images ============
+// ====to DELETE images ============
 
-
+app.post('/delete/:id', (req,res)=>{
+    let id = req.params.id
+// find the record you want deleted
+    Pic.findById(id)
+//    use 'destroy' method to delete
+    .then(row => row.destroy())
+    .then(()=>{
+        return res.redirect('/')
+    })
+})
 
 
 //======== Read Files and Render them in EJS ==========
