@@ -1,3 +1,4 @@
+// ==========Dependencies=========
 const express = require('express')
 const ejs = require('ejs')
 const Sequelize = require('sequelize')
@@ -12,6 +13,7 @@ const multer = require('multer')
 const LocalStrategy = require('passport-local').Strategy
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
+// =======SQL shell login setup=========
 const Op = Sequelize.Op
 const sequelize = new Sequelize('instaphotos', 'postgres', 'giants', {
 	host: 'localhost',
@@ -34,6 +36,12 @@ const User = sequelize.define('user', {
 	email: Sequelize.STRING
 })
 
+// =======Photo storage in SQL - Defining the Table=========
+const Pic = sequelize.define('pic',{
+    username: Sequelize.STRING,
+    image: Sequelize.STRING,
+    comment: Sequelize.STRING
+})
 
 const sessionStore = new SequelizeStore({
     db: sequelize
@@ -42,7 +50,34 @@ const sessionStore = new SequelizeStore({
 sequelize.sync()
 sessionStore.sync();
 
+
+
+
+// ========Multer Photo Upload Storage Architecture==========
+const storage = multer.diskStorage({
+    destination: './public/uploads',
+    filename: (req,file, cb)=>{
+        // NAMING CONVENTION (make it unique)
+        // tell it what to do to 
+        // define and name the file
+        cb(null, file.fieldname + '_'+Date.now()+path.extname(file.originalname))
+    } 
+});
+// -Multer uploads to the uploads folder, Sharp uploads to the thumbnail folder
+// Upload Process Definition so multer knows the name of the input type of file
+const upload = multer({storage: storage}).single('image')
+// MUST correspond with the HTML 'select file' input
+
+
+
+
+
+
+// ======Boilerplate=============== 
 const app = express()
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(express.static('public'))
 
 
 
@@ -55,6 +90,8 @@ passport.serializeUser(function(user, done) {
 		console.log(obj)	
 			done(null, obj);
 	})
+
+
 
 //================Start Passport Local Config==================
 passport.use('local-signup', new LocalStrategy({
@@ -87,7 +124,7 @@ function processSignupCallback(req, username, password, done) {
 
 
 
-//-------------Start of Passport Login-----------
+//==============Start of Passport Logi==========
 passport.use('local-login', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
@@ -194,15 +231,38 @@ app.get('/logout',function(req, res){
     res.redirect('/login');
   })
 
+
+
+  
 // ====to 'add' images ============
-
-
-
-
-
-
-
-
+app.post('/upload', (req,res)=>{
+    upload(req,res, (err)=>{
+        if(err){
+            console.log(err)
+        }
+    console.log(req.body)
+    console.log(req.file)
+    console.log("File for sharp "+ req.file.path)
+    // Sharp will customize...create thumbnails
+    sharp(req.file.path)
+        .resize(100,100)
+        // indicate where files will be stored
+        .toFile('public/thumbnails/'+req.file.filename, function(err){
+            // res.send(req.file)
+            // ^^^ that sends it to the browser
+        })
+        // create function to enter records into sequelize
+        // from upload (above), we're getting this data
+        Pic.create({
+            username: req.body.username,
+            image: req.file.filename,
+            comment: req.body.comment
+        })
+        .then(()=>{
+            return res.redirect('/')
+        })
+    })    
+})
 
 // ====to 'delete' images ============
 
