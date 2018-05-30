@@ -6,13 +6,16 @@ const PORT = process.env.PORT || 3000
 const passport = require('passport')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
+const sharp = require('sharp')
+const path = require('path')
+const multer = require('multer')
 const LocalStrategy = require('passport-local').Strategy
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
 const Op = Sequelize.Op
-const sequelize = new Sequelize('XXXXX', 'postgres', 'XXXXX', {
+const sequelize = new Sequelize('instaphotos', 'postgres', 'giants', {
 	host: 'localhost',
-	port: '5432',
+	port: '5433',
 	dialect: 'postgres',
 	operatorsAliases:{
 		$and: Op.and,
