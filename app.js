@@ -233,8 +233,8 @@ app.get('/logout',function(req, res){
 
 
 
-  
-// ====to 'add' images ============
+
+// ====to 'add' images(via post method in multer) ============
 app.post('/upload', (req,res)=>{
     upload(req,res, (err)=>{
         if(err){
@@ -269,6 +269,25 @@ app.post('/upload', (req,res)=>{
 
 
 
+//======== Read Files and Render them in EJS ==========
+
+app.get('/', (req,res)=>{
+	//    'find all' is like a select all query in SQL
+	// we get data as rows, and use .then to send it to
+	// livegram.ejs file
+		Pic.findAll().then((rows)=>{
+			return rows
+		})
+		.then((rows)=>{
+			//  we send it to the ejs file name
+			return res.render('profile',{rows})
+			// outputing 'data' from read directory to gallery
+		})
+	})
+	
+	app.post('/',(req,res)=>{
+		fs.readdir()
+	})
 
 
 
