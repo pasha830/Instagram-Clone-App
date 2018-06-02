@@ -11,32 +11,29 @@
 <body>
 	<h1>Profile Page</h1>
 
-	<strong>Last Name: </strong><%= user.lname %><br>
 	<strong>First Name: </strong><%= user.fname %><br>
+	<strong>Last Name: </strong><%= user.lname %><br>
 	<strong>Username: </strong><%= user.username %><br>
-	<strong>password: </strong><%= user.password %><br>
 	<strong>Email: </strong><%= user.email %><br>
 	<br>
 	<br>
 	<h1>Image Gallery</h1>
 	<a href="upload-2.html"><button>Add Photo</button></a>
-    <div>
-    <% for(let i in rows) {%>
-    <div class="photos">
-        <img src="thumbnails/<%= rows[i].dataValues.image%>">
-        <!-- Using the photos from our thumbnails folder,
-       
-         and rendering them in this EJS -->
-         <h6><%= rows[i].dataValues.title%></h6>
-		 <h6><%= rows[i].dataValues.comment%></h6>
-		 
-		 <!-- DELETE Button -->
-		 <form method="POST" action= "/delete/<%=rows[i].dataValues.id %>">
-			<button>Delete</button>
-
-        </div>
-</div>
-<%}%>
+			<div>
+					<% for(let i in rows) {%>
+					<div class="photos">
+						<img src="thumbnails/<%= rows[i].dataValues.image%>">
+						<!-- Using the photos from our thumbnails folder,
+					   
+						 and rendering them in this EJS -->
+						 <h6><%= rows[i].dataValues.title%></h6>
+						 <h6><%= rows[i].dataValues.comment%></h6>
+				
+						</div>
+				</div>
+				<%}%>
+			</div>
+    
 	<a href="/logout"><button>Logout</button></a>
 
 

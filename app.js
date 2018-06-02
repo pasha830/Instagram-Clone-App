@@ -43,6 +43,16 @@ const Pic = sequelize.define('pic',{
     comment: Sequelize.STRING
 })
 
+// =======Comments=========
+const Comment = sequelize.define('comment',{
+    comment: Sequelize.STRING
+})
+
+// =======Likes=========
+const Like = sequelize.define('like',{
+    comment: Sequelize.STRING
+})
+
 const sessionStore = new SequelizeStore({
     db: sequelize
   });
@@ -220,15 +230,29 @@ app.get('/profile',
   function(req, res){
   	console.log("****The req.user****" + req.user)
   	User.findById(req.user.id).then((user)=>{
-     res.render('profile', { user: user.dataValues});
-    })
+		// **********Photos**********
+	// means 'go into photos TABLE then find all items'
+	Pic.findAll().then((rows)=>{
+		return rows
+	})
+	.then((rows)=>{
+		//  we send it to the ejs file name
+		return res.render('profile',{rows,  user: user.dataValues})
+		// outputing 'data' from read directory to gallery
+	})
   })
+})
+  app.get('/logout',function(req, res){
+	console.log("*****Loging out*****")
+	req.session.destroy()
+  req.logout();
+  res.redirect('/login');
+})
 
-app.get('/logout',function(req, res){
-  	console.log("*****Loging out*****")
+app.get('/upload-2',function(req, res){
   	req.session.destroy()
     req.logout();
-    res.redirect('/login');
+    res.redirect('/profile');
   })
 
 
@@ -259,25 +283,10 @@ app.post('/upload', (req,res)=>{
             comment: req.body.comment
         })
         .then(()=>{
-            return res.redirect('/')
+            return res.redirect('/profile')
         })
     })    
 })
-
-// ====to DELETE images ============
-
-app.post('/delete/:id', (req,res)=>{
-    let id = req.params.id
-// find the record you want deleted
-    Pic.findById(id)
-//    use 'destroy' method to delete
-    .then(row => row.destroy())
-    .then(()=>{
-        return res.redirect('/')
-    })
-})
-
-
 //======== Read Files and Render them in EJS ==========
 
 app.get('/', (req,res)=>{
@@ -297,6 +306,21 @@ app.get('/', (req,res)=>{
 	app.post('/',(req,res)=>{
 		fs.readdir()
 	})
+// ====to DELETE images ============
+
+app.post('/delete/:id', (req,res)=>{
+    let id = req.params.id
+// find the record you want deleted
+    Pic.findById(id)
+//    use 'destroy' method to delete
+    .then(row => row.destroy())
+    .then(()=>{
+        return res.redirect('/')
+    })
+})
+
+
+
 
 
 
