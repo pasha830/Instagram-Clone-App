@@ -10,14 +10,22 @@ const cookieParser = require('cookie-parser')
 const sharp = require('sharp')
 const path = require('path')
 const multer = require('multer')
+const dotenv = require('dotenv')
 const LocalStrategy = require('passport-local').Strategy
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
+dotenv.load();
+const postgres_user = process.env.DB_USER;
+const postgres_pass = process.env.DB_PASS;
+
+// ---------------------------------------------------------
 // =======SQL shell login setup=========
+// ---------------------------------------------------------
+
 const Op = Sequelize.Op
-const sequelize = new Sequelize('instaphotos', 'postgres', 'giants', {
+const sequelize = new Sequelize('instaphotos', postgres_user, postgres_pass, {
 	host: 'localhost',
-	port: '5433',
+	port: '5432', //david-port: 5433
 	dialect: 'postgres',
 	operatorsAliases:{
 		$and: Op.and,
@@ -36,19 +44,28 @@ const User = sequelize.define('user', {
 	email: Sequelize.STRING
 })
 
+// ---------------------------------------------------------
 // =======Photo storage in SQL - Defining the Table=========
+// ---------------------------------------------------------
+
 const Pic = sequelize.define('pic',{
     username: Sequelize.STRING,
     image: Sequelize.STRING,
     comment: Sequelize.STRING
 })
 
+// ---------------------------------------------------------
 // =======Comments=========
+// ---------------------------------------------------------
+
 const Comment = sequelize.define('comment',{
     comment: Sequelize.STRING
 })
 
+// ---------------------------------------------------------
 // =======Likes=========
+// ---------------------------------------------------------
+
 const Like = sequelize.define('like',{
     comment: Sequelize.STRING
 })
@@ -62,8 +79,9 @@ sessionStore.sync();
 
 
 
-
-// ========Multer Photo Upload Storage Architecture==========
+// ---------------------------------------------------------
+// ========Multer Photo Upload Storage Architecture=========
+// ---------------------------------------------------------
 const storage = multer.diskStorage({
     destination: './public/uploads',
     filename: (req,file, cb)=>{
@@ -79,11 +97,9 @@ const upload = multer({storage: storage}).single('image')
 // MUST correspond with the HTML 'select file' input
 
 
-
-
-
-
+// ---------------------------------------------------------
 // ======Boilerplate=============== 
+// ---------------------------------------------------------
 const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
@@ -102,8 +118,10 @@ passport.serializeUser(function(user, done) {
 	})
 
 
+// ---------------------------------------------------------
+//================Start Passport Local Config===============
+// ---------------------------------------------------------
 
-//================Start Passport Local Config==================
 passport.use('local-signup', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
@@ -133,8 +151,10 @@ function processSignupCallback(req, username, password, done) {
 }
 
 
-
+// ---------------------------------------------------------
 //==============Start of Passport Login==========
+// ---------------------------------------------------------
+
 passport.use('local-login', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
@@ -176,14 +196,17 @@ function processLoginCallback(req, username, password, done) {
 		saveUninitialized: false 
 	}));
 
+// ---------------------------------------------------------
 //================ Passport Middleware ==============
+// ---------------------------------------------------------
 
 app.use(passport.initialize());
  app.use(passport.session());
 
 
-
+// ---------------------------------------------------------
 //=========Routes==================
+// ---------------------------------------------------------
 app.get('/', (req, res)=>{
 	if(req.user){
 	res.render('homepage', {user: req.user})
@@ -192,7 +215,7 @@ app.get('/', (req, res)=>{
 	}
 })
 
-app.get('/register', (req, res)=>{
+app.post('/register', (req, res)=>{
 	return res.render('register')
 })
 
@@ -207,17 +230,17 @@ app.post('/signup', function(req,res, next){
 });
 
 app.post('/login', function(req,res,next){
-		passport.authenticate('local-login', function(err, user){
-			console.log("Another login for user  :" + req.user)
-			if (err || user == false) {
-				return res.render('login', {message: "Incorrect Username/Password"})
-			} else {
-				req.login(user, function(err){
-					console.log("Getting req.user :"+ req.user)
-					return res.render('homepage', {user: req.user})
-				})
-			}
-		})(req, res, next);
+	passport.authenticate('local-login', function(err, user){
+		console.log("Another login for user  :" + req.user)
+		if (err || user == false) {
+			return res.render('login', {message: "Incorrect Username/Password"})
+		} else {
+			req.login(user, function(err){
+			console.log("Getting req.user :"+ req.user)
+				return res.render('homepage', {user: req.user})
+			})
+		}
+	})(req, res, next);
 })
 
 
@@ -257,8 +280,10 @@ app.get('/upload-2',function(req, res){
 
 
 
+// ---------------------------------------------------------
+// ====to 'add' images(via post method in multer) ==========
+// ---------------------------------------------------------
 
-// ====to 'add' images(via post method in multer) ============
 app.post('/upload', (req,res)=>{
     upload(req,res, (err)=>{
         if(err){
@@ -269,7 +294,7 @@ app.post('/upload', (req,res)=>{
     console.log("File for sharp "+ req.file.path)
     // Sharp will customize...create thumbnails
     sharp(req.file.path)
-        .resize(100,100)
+        .resize(200, 200)
         // indicate where files will be stored
         .toFile('public/thumbnails/'+req.file.filename, function(err){
             // res.send(req.file)
@@ -287,7 +312,10 @@ app.post('/upload', (req,res)=>{
         })
     })    
 })
+
+// ---------------------------------------------------------
 //======== Read Files and Render them in EJS ==========
+// ---------------------------------------------------------
 
 app.get('/', (req,res)=>{
 	//    'find all' is like a select all query in SQL
@@ -306,7 +334,10 @@ app.get('/', (req,res)=>{
 	app.post('/',(req,res)=>{
 		fs.readdir()
 	})
+
+// ---------------------------------------------------------
 // ====to DELETE images ============
+// ---------------------------------------------------------
 
 app.post('/delete/:id', (req,res)=>{
     let id = req.params.id
@@ -315,7 +346,7 @@ app.post('/delete/:id', (req,res)=>{
 //    use 'destroy' method to delete
     .then(row => row.destroy())
     .then(()=>{
-        return res.redirect('/')
+        return res.redirect('/profile')
     })
 })
 
@@ -324,8 +355,9 @@ app.post('/delete/:id', (req,res)=>{
 
 
 
-
+// ---------------------------------------------------------
 //===Server ============
+// ---------------------------------------------------------
 
 app.listen(PORT, ()=>{
 	console.log("Server is running...")

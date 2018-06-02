@@ -1,44 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>FotoBucket | Profile</title>
-	<style>
-        .photos{
-           float: left; 
-        }
-    </style>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<title>fotoBucket | Profile</title>
+
 </head>
+<% include ./header.ejs %>
 <body>
-	<h1>Profile Page</h1>
+	<div>
+<-- profile image goes here --->
+	</div>
+	<div>
+		<strong>Username: </strong><%= user.username %><br>
+	</div>
 
 	<strong>First Name: </strong><%= user.fname %><br>
 	<strong>Last Name: </strong><%= user.lname %><br>
-	<strong>Username: </strong><%= user.username %><br>
+
 	<strong>Email: </strong><%= user.email %><br>
 	<br>
 	<br>
-	<h1>Image Gallery</h1>
 	<a href="upload-2.html"><button>Add Photo</button></a>
-			<div>
-					<% for(let i in rows) {%>
-					<div class="photos">
-						<img src="thumbnails/<%= rows[i].dataValues.image%>">
+		<div>
+			<% for(let i in rows) {%>
+				<div class="photos">
+				<img src="thumbnails/<%= rows[i].dataValues.image%>">
 						<!-- Using the photos from our thumbnails folder,
 					   
 						 and rendering them in this EJS -->
-						 <h6><%= rows[i].dataValues.title%></h6>
-						 <h6><%= rows[i].dataValues.comment%></h6>
+					<h6><%= rows[i].dataValues.title%></h6>
+					<h6><%= rows[i].dataValues.comment%></h6>
+						
+			<form method="POST" action="/delete/<%= rows[i].dataValues.id%>"> 
+				<button>Delete</button>
+			</form>
 				
-						</div>
-				</div>
-				<%}%>
 			</div>
-    
-	<a href="/logout"><button>Logout</button></a>
+			<%}%>
+		</div>
+		
+   </body>
 
 
 
+	<% include ./footer.ejs %>
 
-
-</body>
 </html>
