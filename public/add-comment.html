@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="fb-styles.css">
+	<title>fotoBucket | comment</title>
+</head>
+<% include ./header.ejs %>
+<body>
+
+	<h1>Leave a comment below:</h1>
+	<br>
+	<br>
+	<form action="/comment/<%= rows[i].dataValues.id%>" method="POST">
+		<table>
+			<tr>
+				<th>Comment:</th>
+				<td>
+					<textarea type="text" name="body" wrap="hard" rows="10" cols="100"></textarea>
+				</td>
+			</tr>
+		</table>
+
+		<button>Post</button>
+		
+	</form>
+
+</body>
+<% include ./footer.ejs %>
+</html>

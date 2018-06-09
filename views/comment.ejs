@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="fb-styles.css">
+	<title>fotoBucket | comment</title>
+</head>
+<% include ./header.ejs %>
+<body>
+<body>
+    <form method="POST" action="/comment-add/<%=id %>">
+        <h1>Leave a Comment Below:</h1>
+            Username: <input type="text" name="username">
+            <br><br>
+            Comment: <textarea type="text" name="comment" wrap="hard" rows="3" cols="50"></textarea>
+            <br>
+            <br>
+            <button>Add Comment</button>
+    </form>   
+    <br>
+    <hr> 
+    	<div>
+    	<% if (rows != '') { %>
+        	<% for (let i in rows) { %>
+           		<p><strong><%= rows[i].dataValues.username %></strong>: <%= rows[i].dataValues.comment %></p>
+        	<% } %>
+        <% } %>
+    </div>
+    <br>
+</body>
+<br>
+<br>
+<% include ./footer.ejs %>
+</html>

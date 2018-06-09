@@ -41,7 +41,7 @@ const User = sequelize.define('user', {
 	lname: Sequelize.STRING,
 	username: Sequelize.STRING,
 	password: Sequelize.STRING,
-	email: Sequelize.STRING
+	email: Sequelize.STRING,
 })
 
 // ---------------------------------------------------------
@@ -59,8 +59,11 @@ const Pic = sequelize.define('pic',{
 // ---------------------------------------------------------
 
 const Comment = sequelize.define('comment',{
-    comment: Sequelize.STRING
+	username: Sequelize.STRING,
+	comment: Sequelize.STRING
 })
+
+Comment.belongsTo(Pic)
 
 // ---------------------------------------------------------
 // =======Likes=========
@@ -326,7 +329,7 @@ app.get('/', (req,res)=>{
 		})
 		.then((rows)=>{
 			//  we send it to the ejs file name
-			return res.render('profile',{rows})
+			return res.render('profile', {rows})
 			// outputing 'data' from read directory to gallery
 		})
 	})
@@ -350,7 +353,103 @@ app.post('/delete/:id', (req,res)=>{
     })
 })
 
+// --------------------------------------------------------
+// =======To Render 'Comments' Ejs page (first try)=======
+// --------------------------------------------------------
 
+app.get('/comment/:id', (req, res)=>{
+    // retrieve the value 
+	// then use that ID to search the database!
+	let id = req.params.id
+	Comment.findAll({
+		where:{
+			picId: id
+		}
+	})
+	.then((rows)=>{
+		return res.render('comment', {id, rows})
+	})
+        // Finally, send the {row} DATA to the EDIT form
+        
+	})
+
+
+// --------------------------------------------------------
+// ===To add the new comment into COMMENT TABLE===
+// --------------------------------------------------------
+
+app.post('/comment-add/:id', (req, res)=>{
+	// re-assigning corresponding ID to picId
+	// and giving thosea attributes
+	let picId = req.params.id
+	//Creates new comment in the database 'instaphotos' in Comment table 
+	Comment.create({ 
+		username: req.body.username,
+		picId: picId, 
+		comment: req.body.comment
+	})	
+	.then((rows)=>{
+		Comment.findAll({
+			where:{
+				picId: req.params.id
+			}
+	})
+	.then((rows)=>{
+		console.log("*****Checking for rows*******")
+		console.log(rows)
+		
+		//below will render the comments table
+		return res.render('comment', {id: picId, rows}) 
+		// re-assigning picId to id 
+		// so it cooresponds to the form action in comment.ejs
+		})
+	})
+})
+
+
+// ======To Render 'Edit Image' page=======
+app.post('/edit/:id', (req,res)=>{
+    // retrieve the value 
+    // then use that ID to search the database!
+    Pic.findOne({
+    	where:{
+    		id: req.params.id
+    	}
+    })
+    .then(row =>{
+        // Finally, send the {row} DATA to the EDIT form
+        return res.render('edit-post', {row})
+    })
+})
+
+// =====Update The Entry======
+app.post('/update', (req, res)=>{
+	upload(req, res, (err)=>{
+		if(err){
+			console.log(err)
+		}
+		sharp(req.file.path)
+		.resize(200, 200)
+		.toFile('public/thumbnails/' + req.file.filename)
+    Pic.findOne({
+    	where:{
+    		id: req.body.id
+    	}
+    })
+    .then((row)=>{
+    	row.update({
+    		username: req.body.username,
+    		image: req.file.filename,
+    		comment: req.body.comment
+    		})
+   		})
+    	.then((rows)=>{
+    		return res.redirect('/profile')
+    	})
+	})
+})
+
+// ====POST Edited Upload (similar to initial upload)=====
 
 
 

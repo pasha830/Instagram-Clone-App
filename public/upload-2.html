@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="fb-styles.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Upload Form</title>
 </head>
+<% include ./header.ejs %>
 <body>
     <h1>Upload Form</h1>
 
     <form method="POST" action="/upload" enctype="multipart/form-data">
     
-    File: <input type="file" name="image"><br>
-    <!-- Title: <input type="text" name="title"><br> -->
-    Comment: <textarea type="text" name="comment"/></textarea>
+        File: <input type="file" name="image"><br><br>
+        Comment: <textarea type="text" name="comment"/></textarea><br>
 
-    <button>Submit</button>
+        <button>Submit</button>
     
     </form>
+
+<div>
+<% include ./footer.ejs %>
+</div>
 </body>
+
 </html>

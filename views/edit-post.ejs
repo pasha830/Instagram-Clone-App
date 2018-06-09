@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="fb-styles.css">
+    <title>Update Photo Post</title>
+</head>
+<% include ./header.ejs %>
+
+
+<body>
+    
+        <h1>Update Posting</h1>
+    
+        <form method="POST" action="/update" enctype="multipart/form-data">
+
+       ID: <input type="text" name="id" value='<%= row.dataValues.id %>' ><br>
+        
+        File: <input type="file" name="image"><br>
+
+        Comment: <input type="text" name="comment" value='<%= row.dataValues.comment %>' >
+            <br>
+       		<button>Submit</button> 
+        </form>
+        <br>
+        <br>
+
+
+</body>
+
+
+</html>
