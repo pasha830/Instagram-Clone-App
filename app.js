@@ -25,7 +25,7 @@ const postgres_pass = process.env.DB_PASS;
 const Op = Sequelize.Op
 const sequelize = new Sequelize('instaphotos', postgres_user, postgres_pass, {
 	host: 'localhost',
-	port: '5432', //david-port: 5433
+	port: '5433', //david-port: 5433
 	dialect: 'postgres',
 	operatorsAliases:{
 		$and: Op.and,
